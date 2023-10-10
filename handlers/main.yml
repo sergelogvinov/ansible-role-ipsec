@@ -1,0 +1,5 @@
+---
+
+- name: ipsec restart
+  service: name={{ipsec_service}} state=restarted
+  when: ansible_os_family != 'Darwin'

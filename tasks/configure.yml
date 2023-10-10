@@ -1,0 +1,16 @@
+---
+
+- name: Create ipsec config
+  template:
+    src: ipsec.conf.j2
+    dest: /etc/ipsec.conf
+    mode: "0644"
+  notify: ipsec restart
+
+- name: Create ipsec secrets
+  template:
+    src: ipsec.secrets.j2
+    dest: /etc/ipsec.d/ipsec.secrets
+    mode: "0644"
+  no_log: true
+  notify: ipsec restart

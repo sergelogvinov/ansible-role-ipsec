@@ -1,0 +1,22 @@
+#
+
+version 2
+config setup
+  virtual-private=%v4:10.0.0.0/8,%v4:192.168.0.0/16,%v4:172.16.0.0/12
+  protostack=netkey
+  listen={{ ansible_default_ipv4.address }}
+
+{% for item in ipsec_connections %}
+conn {{ item }}
+{% for k, v in ipsec_connections[item].items() %}{% if k != 'psk' %}
+  {{ k }}={{ v }}
+{% endif %}{% endfor %}
+
+{% endfor %}
+
+# if it exists, include system wide crypto-policy defaults
+# include /etc/crypto-policies/back-ends/libreswan.config
+
+# It is best to add your IPsec connections as separate files
+# in /etc/ipsec.d/
+include /etc/ipsec.d/*.conf

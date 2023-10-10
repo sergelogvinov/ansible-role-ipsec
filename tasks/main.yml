@@ -1,0 +1,26 @@
+---
+
+- name: Include variables.
+  include_vars: "{{item}}"
+  with_first_found:
+    - "{{ ansible_os_family }}.yml"
+    - "common-default.yml"
+  tags: [ipsec,config]
+
+- import_tasks: install.deb.yml
+  when: ansible_os_family == 'Debian'
+  tags: [ipsec]
+
+- import_tasks: install.yum.yml
+  when: ansible_os_family == 'RedHat'
+  tags: [ipsec]
+
+- import_tasks: configure.yml
+  when: ipsec_enabled
+
+- name: Ensure IPSec is started
+  service:
+    name: ipsec
+    state: started
+    enabled: yes
+  when: ipsec_enabled and ansible_os_family != 'Darwin'

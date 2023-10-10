@@ -1,0 +1,8 @@
+---
+
+- name: Install ipsec (Debian)
+  apt:
+    name: "{{item}}"
+    install_recommends: false
+  with_items:
+    - libreswan
