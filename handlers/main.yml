@@ -1,5 +1,10 @@
 ---
 
+- name: systemctl reload
+  become: yes
+  shell: systemctl daemon-reload
+
 - name: ipsec restart
+  become: yes
   service: name={{ipsec_service}} state=restarted
   when: ansible_os_family != 'Darwin'

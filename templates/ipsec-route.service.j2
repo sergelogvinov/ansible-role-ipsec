@@ -1,0 +1,24 @@
+[Unit]
+Description=Create ecmp route
+After=network-online.target ipsec.service
+DefaultDependencies=no
+
+{% set routes = dict({}) %}
+{% for item in ipsec_connections %}{% if "vti-routing" in ipsec_connections[item] and ipsec_connections[item]["vti-routing"] == "no" %}
+{% set cidr = ipsec_connections[item].rightsubnet %}
+{% if cidr not in routes and routes.update({cidr: [ipsec_connections[item]["vti-interface"]]}) %}
+{% else %}
+{% if ipsec_connections[item]["vti-interface"] not in routes[cidr] and routes[cidr].append(ipsec_connections[item]["vti-interface"]) %}{% endif %}
+{% endif %}
+{% endif %}{% endfor %}
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+{% for ro in routes %}
+ExecStart=/usr/bin/ip route add {{ ro }} nexthop dev {{ routes[ro] | join(' nexthop dev ') }}
+ExecStop=/usr/bin/ip route del {{ ro }} nexthop dev {{ routes[ro] | join(' nexthop dev ') }}
+{% endfor %}
+
+[Install]
+WantedBy=sysinit.target

@@ -1,16 +1,30 @@
 ---
 
 - name: Create ipsec config
+  become: yes
   template:
     src: ipsec.conf.j2
     dest: /etc/ipsec.conf
     mode: "0644"
   notify: ipsec restart
+  tags: [ipsec,config]
 
 - name: Create ipsec secrets
+  become: yes
   template:
     src: ipsec.secrets.j2
     dest: /etc/ipsec.d/ipsec.secrets
     mode: "0644"
   no_log: true
   notify: ipsec restart
+  tags: [ipsec,config]
+
+- name: Create ipsec routes
+  become: yes
+  template:
+    src: ipsec-route.service.j2
+    dest: /etc/systemd/system/ipsec-route.service
+    mode: "0644"
+  when: ipsec_route and ansible_service_mgr == "systemd"
+  notify: systemctl reload
+  tags: [ipsec,config]

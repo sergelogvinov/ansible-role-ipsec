@@ -1,6 +1,7 @@
 ---
 
 - name: Install ipsec (Debian)
+  become: yes
   apt:
     name: "{{item}}"
     install_recommends: false

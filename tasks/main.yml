@@ -8,19 +8,29 @@
   tags: [ipsec,config]
 
 - import_tasks: install.deb.yml
+  become: yes
   when: ansible_os_family == 'Debian'
   tags: [ipsec]
 
 - import_tasks: install.yum.yml
+  become: yes
   when: ansible_os_family == 'RedHat'
   tags: [ipsec]
 
 - import_tasks: configure.yml
-  when: ipsec_enabled
+  when: ipsec_enabled and (ipsec_connections|length > 0)
 
 - name: Ensure IPSec is started
+  become: yes
   service:
     name: ipsec
     state: started
     enabled: yes
   when: ipsec_enabled and ansible_os_family != 'Darwin'
+
+- name: Ensure IPSec-route is enabled
+  become: yes
+  service:
+    name: ipsec-route
+    enabled: yes
+  when: ipsec_route and ansible_os_family != 'Darwin'

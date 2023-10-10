@@ -1,22 +1,24 @@
 ---
 
 ipsec_enabled: yes
+ipsec_route: yes
 
-ipsec_connections:
-  link1:
-    left: "{{ ansible_default_ipv4.address }}"
-    leftsubnet: 0.0.0.0/0
-    right: 1.2.3.4
-    rightsubnet: 0.0.0.0/0
+ipsec_connections: {}
+  # link1:
+  #   left: "{{ ansible_default_ipv4.address }}"
+  #   leftid: "{{ ansible_host }}"
+  #   leftsubnet: 0.0.0.0/0
+  #   right: 1.2.3.4
+  #   rightsubnet: 0.0.0.0/0
 
-    authby: secret
-    ikev2: insist
-    ike: aes256-sha2_512+sha2_256;modp1536
-    esp: aes_gcm256;modp1536
-    encapsulation: "yes"
-    ikelifetime: 28800s
-    salifetime: 3600s
+  #   authby: secret
+  #   ikev2: insist
+  #   ike: aes256-sha2_512+sha2_256;modp1536
+  #   esp: aes_gcm256;modp1536
+  #   encapsulation: "yes"
+  #   ikelifetime: 28800s
+  #   salifetime: 3600s
 
-    auto: start
-    dpddelay: 30
-    dpdaction: restart
+  #   auto: start
+  #   dpddelay: 30
+  #   dpdaction: restart
