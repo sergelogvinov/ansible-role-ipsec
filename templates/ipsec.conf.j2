@@ -5,7 +5,7 @@ version 2
 config setup
   virtual-private=%v4:10.0.0.0/8,%v4:192.168.0.0/16,%v4:172.16.0.0/12
   protostack=netkey
-  listen={{ ansible_default_ipv4.address }}
+  listen={{ ipsec_listen }}
 
 {% for item in ipsec_connections %}
 conn {{ item }}

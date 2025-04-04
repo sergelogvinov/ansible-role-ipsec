@@ -1,9 +1,10 @@
 ---
-
 ipsec_enabled: yes
 ipsec_route: yes
 
-ipsec_connections: {}
+ipsec_listen: "{{ ansible_default_ipv4.address }}"
+ipsec_connections:
+  {}
   # link1:
   #   left: "{{ ansible_default_ipv4.address }}"
   #   leftid: "{{ ansible_host }}"
