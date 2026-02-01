@@ -3,34 +3,34 @@
 - name: Include variables.
   include_vars: "{{item}}"
   with_first_found:
-    - "{{ ansible_os_family }}.yml"
+    - "{{ ansible_facts['os_family'] }}.yml"
     - "common-default.yml"
   tags: [ipsec,config]
 
 - import_tasks: install.deb.yml
-  become: yes
-  when: ipsec_enabled and ansible_os_family == 'Debian'
+  become: true
+  when: ipsec_enabled|bool and ansible_facts["os_family"] == 'Debian'
   tags: [ipsec]
 
 - import_tasks: install.yum.yml
-  become: yes
-  when: ipsec_enabled and ansible_os_family == 'RedHat'
+  become: true
+  when: ipsec_enabled|bool and ansible_facts["os_family"] == 'RedHat'
   tags: [ipsec]
 
 - import_tasks: configure.yml
-  when: ipsec_enabled and (ipsec_connections|length > 0)
+  when: ipsec_enabled|bool and (ipsec_connections|length > 0)
 
 - name: Ensure IPSec is started
-  become: yes
+  become: true
   service:
     name: ipsec
     state: started
     enabled: yes
-  when: ipsec_enabled and ansible_os_family != 'Darwin'
+  when: ipsec_enabled|bool and ansible_facts["os_family"] != 'Darwin'
 
 - name: Ensure IPSec-route is enabled
-  become: yes
+  become: true
   service:
     name: ipsec-route
     enabled: yes
-  when: ipsec_enabled and ansible_os_family != 'Darwin'
+  when: ipsec_enabled|bool and ansible_facts["os_family"] != 'Darwin'

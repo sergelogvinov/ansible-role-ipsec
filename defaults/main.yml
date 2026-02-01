@@ -1,13 +1,14 @@
 ---
-ipsec_enabled: yes
-ipsec_route: yes
 
-ipsec_listen: "{{ ansible_default_ipv4.address }}"
+ipsec_enabled: true
+ipsec_route: true
+
+ipsec_listen: "{{ ansible_facts['default_ipv4']['address'] }}"
 ipsec_connections:
   {}
   # link1:
-  #   left: "{{ ansible_default_ipv4.address }}"
-  #   leftid: "{{ ansible_host }}"
+  #   left: "{{ ansible_facts['default_ipv4']['address'] }}"
+  #   leftid: "{{ ansible_facts['host'] }}"
   #   leftsubnet: 0.0.0.0/0
   #   right: 1.2.3.4
   #   rightsubnet: 0.0.0.0/0
