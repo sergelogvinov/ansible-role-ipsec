@@ -1,11 +1,10 @@
 ---
-
 ipsec_enabled: true
-ipsec_route: true
+ipsec_route: false
+ipsec_bgp: false
 
 ipsec_listen: "{{ ansible_facts['default_ipv4']['address'] }}"
-ipsec_connections:
-  {}
+ipsec_connections: {}
   # link1:
   #   left: "{{ ansible_facts['default_ipv4']['address'] }}"
   #   leftid: "{{ ansible_facts['host'] }}"
@@ -24,3 +23,14 @@ ipsec_connections:
   #   auto: start
   #   dpddelay: 30
   #   dpdaction: restart
+
+ipsec_bgp_router_id: "{{ ansible_facts['default_ipv4']['address'] }}"
+ipsec_bgp_instance: dummy1
+ipsec_bgp_peers: {}
+  # link1:
+  #   local_subnets: "1.2.3.4/24"
+  #   local_as: 65001
+  #   local_ip: 169.254.0.0
+  #   peer_subnets: "1.2.3.4/24"
+  #   peer_as: 65002
+  #   peer_ip: 169.254.0.1

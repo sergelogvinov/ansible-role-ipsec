@@ -1,0 +1,23 @@
+---
+- name: package bird
+  apt:
+    name: "{{ item }}"
+  become: true
+  with_items:
+    - bird2
+  tags: [ipsec, config]
+
+- name: bird configuration
+  template:
+    src: bird.conf.j2
+    dest: /etc/bird/bird.conf
+  become: true
+  tags: [ipsec, config]
+
+- name: restart bird
+  service:
+    name: bird
+    enabled: yes
+    state: restarted
+  become: true
+  tags: ["ipsec"]

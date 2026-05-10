@@ -1,0 +1,88 @@
+#
+
+debug protocols all;
+
+router id {{ ipsec_bgp_router_id }};
+
+{% set subnets = [] %}
+{% for name, conn in ipsec_bgp_peers.items() %}
+{% for subnet in conn.local_subnets.split(',') %}
+{% set _ = subnets.append(subnet) %}
+{% endfor %}
+{% endfor %}
+{% set subnets = subnets|unique %}
+
+filter ipsec_common_out {
+{% for subnet in subnets if subnet.find('.') > 0 %}
+{% set mask = subnet.split('/')[1] | int %}
+{% set m = "" if mask == 32 else "{" + mask|string + ",31}" %}
+    if ( net ~ [ {{ subnet }}{{ m }} ] ) then accept;
+{% endfor %}
+    reject;
+}
+
+protocol kernel {
+    scan time 60;
+    learn all;
+    ipv4 {
+        import filter ipsec_common_out;
+        export all;
+    };
+}
+
+protocol device {
+    scan time 60;
+}
+
+protocol direct {
+    ipv4;
+    # ipv6;
+    interface "-vti*", "*";
+}
+
+{% for name, conn in ipsec_connections.items() if name != "common" %}
+protocol bgp uplink{{ loop.index }} {
+    description "BGP uplink {{ name }}";
+    local {{ ipsec_bgp_peers[name].local_ip }} as {{ ipsec_bgp_peers[name].local_as }};
+    neighbor {{ ipsec_bgp_peers[name].peer_ip }} as {{ ipsec_bgp_peers[name].peer_as }};
+
+    ipv4 {
+        import filter {
+{% for subnet in ipsec_bgp_peers[name].peer_subnets.split(',') if subnet.find('.') > 0 %}
+{% set mask = subnet.split('/')[1] | int %}
+{% set m = "" if mask == 32 else "{" + mask|string + ",32}" %}
+            if ( net ~ [ {{ subnet }}{{ m }} ] ) then accept;
+{% endfor %}
+            reject;
+        };
+        export filter {
+{% for subnet in ipsec_bgp_peers[name].local_subnets.split(',') if subnet.find('.') > 0 %}
+{% set mask = subnet.split('/')[1] | int %}
+{% set m = "" if mask == 32 else "{" + mask|string + ",32}" %}
+            if ( net ~ [ {{ subnet }}{{ m }} ] ) then accept;
+{% endfor %}
+            reject;
+        };
+    };
+    ipv6 {
+        import filter {
+{% for subnet in ipsec_bgp_peers[name].peer_subnets.split(',') if subnet.find(':') > 0 %}
+{% set mask = subnet.split('/')[1] | int %}
+{% set m = "" if mask == 128 else "{" + mask|string + ",128}" %}
+            if ( net ~ [ {{ subnet }}{{ m }} ] ) then accept;
+{% endfor %}
+            reject;
+        };
+        export filter {
+{% for subnet in ipsec_bgp_peers[name].local_subnets.split(',') if subnet.find(':') > 0 %}
+{% set mask = subnet.split('/')[1] | int %}
+{% set m = "" if mask == 128 else "{" + mask|string + ",128}" %}
+            if ( net ~ [ {{ subnet }}{{ m }} ] ) then accept;
+{% endfor %}
+            reject;
+        };
+    };
+    graceful restart on;
+};
+
+{% endfor %}
